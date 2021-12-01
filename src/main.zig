@@ -12,13 +12,20 @@ pub fn main() anyerror!void {
 
     const stdout = std.io.getStdOut().writer();
 
+    var increases: i64 = 0;
+
+    var previous: ?i64 = null;
+
     var buf: [1024]u8 = undefined;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-        const i = std.fmt.parseInt(i64, line, 10);
+        const i = try std.fmt.parseInt(i64, line, 10);
 
-        _ = try stdout.print("{}", .{i});
-        _ = try stdout.write("\n");
+        if (previous != null and i > previous.?) {
+            increases += 1;
+        }
+
+        previous = i;
     }
 
-    std.log.info("All your codebase are belong to us.", .{});
+    _ = try stdout.print("Part 1 {}\n", .{increases});
 }
