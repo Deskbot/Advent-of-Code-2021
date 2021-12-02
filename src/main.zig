@@ -63,11 +63,17 @@ fn part2(reader: *File.Reader) !void {
 
     var increases: i64 = 0;
 
+    var numbersRead: i64 = 0;
+
     var buf: [1024]u8 = undefined;
     while (try reader.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         const nextInt = try std.fmt.parseInt(i64, line, 10);
 
         window.append(nextInt);
+
+        numbersRead += 1;
+
+        if (numbersRead < 3) continue; // need a complete window to start with
 
         const windowSum = sum(&window.arr);
 
