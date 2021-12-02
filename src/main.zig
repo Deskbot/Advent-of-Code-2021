@@ -3,14 +3,18 @@ const os = std.os;
 const io = std.io;
 const warn = @import("std").debug.warn;
 
+const stdout = std.io.getStdOut().writer();
+
 pub fn main() anyerror!void {
     var file = try std.fs.cwd().openFile("./input/Day01.txt", .{});
     defer file.close();
 
+    try part1(&file);
+}
+
+fn part1(file: *std.fs.File) !void {
     var buf_reader = io.bufferedReader(file.reader());
     var in_stream = buf_reader.reader();
-
-    const stdout = std.io.getStdOut().writer();
 
     var increases: i64 = 0;
 
