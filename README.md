@@ -7,3 +7,9 @@ Language: Zig
 ```
 zig build && ./zig-out/bin/2021
 ```
+
+## Test
+
+```
+zig test src/main.zig
+```
