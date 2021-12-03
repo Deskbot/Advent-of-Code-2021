@@ -23,9 +23,9 @@ pub fn day03() anyerror!void {
     var file = try std.fs.cwd().openFile("./input/Day03.txt", .{});
     defer file.close();
 
-    // const fileStr = try file.readToEndAlloc(gpa.allocator, 1000 * 12 * 100);
+    const fileStr = try file.readToEndAlloc(&gpa.allocator, 1000 * 12 * 100);
 
-    const inputList = try parseInput(&file.reader(), &gpa.allocator);
+    const inputList = try parseInput(fileStr, &gpa.allocator);
     // defer gpa.allocator.free(&inputList);
 
     const input = inputList.items;
@@ -36,18 +36,19 @@ pub fn day03() anyerror!void {
     // _ = try stdout.print("Part 1 {}\n", .{try part2(input, numDigits, &gpa.allocator)});
 }
 
-fn parseInput(reader: *File.Reader, allocator: *Allocator) !ArrayList([]u8) {
-    var list = ArrayList([]u8).init(allocator);
+fn parseInput(fileStr: []const u8, allocator: *Allocator) !ArrayList([]const u8) {
+    var lines = ArrayList([]const u8).init(allocator);
 
-    var buf: [1024]u8 = undefined;
-    while (try reader.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-        try list.append(line);
+    var iter = mem.split(fileStr, "\n");
+
+    while (iter.next()) |line| {
+        try lines.append(line);
     }
 
-    return list;
+    return lines;
 }
 
-fn part1(nums: []const []u8, numDigits: usize, allocator: *Allocator) !i64 {
+fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64 {
     var zeroCounts: []i64 = try allocator.alloc(i64, nums.len);
     defer allocator.free(zeroCounts);
 
