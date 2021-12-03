@@ -26,7 +26,7 @@ pub fn day03() anyerror!void {
     const fileStr = try file.readToEndAlloc(&gpa.allocator, 1000 * 12 * 100);
 
     const inputList = try parseInput(fileStr, &gpa.allocator);
-    // defer gpa.allocator.free(&inputList);
+    defer inputList.deinit();
 
     const input = inputList.items;
     const numDigits = input[0].len;
@@ -42,17 +42,19 @@ fn parseInput(fileStr: []const u8, allocator: *Allocator) !ArrayList([]const u8)
     var iter = mem.split(fileStr, "\n");
 
     while (iter.next()) |line| {
-        try lines.append(line);
+        if (!mem.eql(u8, line, "")) {
+            try lines.append(line);
+        }
     }
 
     return lines;
 }
 
 fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64 {
-    var zeroCounts: []i64 = try allocator.alloc(i64, nums.len);
+    var zeroCounts: []i64 = try allocator.alloc(i64, numDigits);
     defer allocator.free(zeroCounts);
 
-    var oneCounts: []i64 = try allocator.alloc(i64, nums.len);
+    var oneCounts: []i64 = try allocator.alloc(i64, numDigits);
     defer allocator.free(oneCounts);
 
     for (zeroCounts) |*zero| {
@@ -60,11 +62,11 @@ fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
     }
 
     for (oneCounts) |*one| {
-        one.* = 1;
+        one.* = 0;
     }
 
-    for (nums) |num, index| {
-        for (num) |digit| {
+    for (nums) |num| {
+        for (num) |digit, index| {
             if (digit == '0') {
                 zeroCounts[index] += 1;
             } else {
@@ -78,11 +80,9 @@ fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
 
     defer allocator.free(gammaStr);
 
-    const halfNumDigits = numDigits / 2;
-
     var i: usize = 0;
     while (i < numDigits) {
-        if (zeroCounts[i] > halfNumDigits) {
+        if (zeroCounts[i] > oneCounts[i]) {
             gammaStr[i] = '0';
             epsilonStr[i] = '1';
         } else {
@@ -97,4 +97,36 @@ fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
     const epsilon = try fmt.parseInt(i64, epsilonStr, 2);
 
     return gamma * epsilon;
+}
+
+const expect = std.testing.expect;
+
+test "part 1 example" {
+    const inputStr =
+        \\ 00100
+        \\ 11110
+        \\ 10110
+        \\ 10111
+        \\ 10101
+        \\ 01111
+        \\ 00111
+        \\ 11100
+        \\ 10000
+        \\ 11001
+        \\ 00010
+        \\ 01010
+    ;
+
+    var gpa = GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+
+    const inputList = try parseInput(inputStr, &gpa.allocator);
+    defer inputList.deinit();
+
+    const input = inputList.items;
+    const numDigits = input[0].len;
+
+    const result = try part1(input, numDigits, &gpa.allocator);
+
+    try expect(result == 198);
 }
