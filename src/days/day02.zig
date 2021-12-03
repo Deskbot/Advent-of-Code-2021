@@ -23,7 +23,7 @@ pub fn day02() anyerror!void {
 
     _ = try stdout.print("Part 1 {}\n", .{part1(input)});
 
-    // _ = try stdout.print("Part 2 {}\n", .{part2(&input)});
+    _ = try stdout.print("Part 2 {}\n", .{part2(input)});
 }
 
 const Direction = enum {
@@ -82,6 +82,30 @@ fn part1(commands: []const Command) i64 {
             },
             .down => {
                 depth += command.magnitude;
+            },
+        }
+    }
+
+    return horizontalPosition * depth;
+}
+
+fn part2(commands: []const Command) i64 {
+    var aim: i64 = 0;
+
+    var horizontalPosition: i64 = 0;
+    var depth: i64 = 0;
+
+    for (commands) |command| {
+        switch (command.direction) {
+            .forward => {
+                horizontalPosition += command.magnitude;
+                depth += aim * command.magnitude;
+            },
+            .up => {
+                aim -= command.magnitude;
+            },
+            .down => {
+                aim += command.magnitude;
             },
         }
     }
