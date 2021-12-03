@@ -73,20 +73,28 @@ fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
         }
     }
 
-    var result: []u8 = try allocator.alloc(u8, numDigits);
+    var gammaStr: []u8 = try allocator.alloc(u8, numDigits);
+    var epsilonStr: []u8 = try allocator.alloc(u8, numDigits);
 
-    defer allocator.free(result);
+    defer allocator.free(gammaStr);
+
+    const halfNumDigits = numDigits / 2;
 
     var i: usize = 0;
     while (i < numDigits) {
-        if (zeroCounts[i] > oneCounts[i]) {
-            result[i] = '0';
+        if (zeroCounts[i] > halfNumDigits) {
+            gammaStr[i] = '0';
+            epsilonStr[i] = '1';
         } else {
-            result[i] = '1';
+            gammaStr[i] = '1';
+            epsilonStr[i] = '0';
         }
 
         i += 1;
     }
 
-    return try fmt.parseInt(i64, result, 2);
+    const gamma = try fmt.parseInt(i64, gammaStr, 2);
+    const epsilon = try fmt.parseInt(i64, epsilonStr, 2);
+
+    return gamma * epsilon;
 }
