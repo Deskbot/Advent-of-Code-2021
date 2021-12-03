@@ -33,7 +33,7 @@ pub fn day03() anyerror!void {
 
     _ = try stdout.print("Part 1 {}\n", .{try part1(input, numDigits, &gpa.allocator)});
 
-    // _ = try stdout.print("Part 1 {}\n", .{try part2(input, numDigits, &gpa.allocator)});
+    _ = try stdout.print("Part 2 {}\n", .{try part2(input, numDigits, &gpa.allocator)});
 }
 
 fn parseInput(fileStr: []const u8, allocator: *Allocator) !ArrayList([]const u8) {
@@ -76,9 +76,10 @@ fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
     }
 
     var gammaStr: []u8 = try allocator.alloc(u8, numDigits);
-    var epsilonStr: []u8 = try allocator.alloc(u8, numDigits);
-
     defer allocator.free(gammaStr);
+
+    var epsilonStr: []u8 = try allocator.alloc(u8, numDigits);
+    defer allocator.free(epsilonStr);
 
     var i: usize = 0;
     while (i < numDigits) {
@@ -97,6 +98,64 @@ fn part1(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
     const epsilon = try fmt.parseInt(i64, epsilonStr, 2);
 
     return gamma * epsilon;
+}
+
+fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64 {
+    var zeroCounts: []i64 = try allocator.alloc(i64, numDigits);
+    defer allocator.free(zeroCounts);
+
+    var oneCounts: []i64 = try allocator.alloc(i64, numDigits);
+    defer allocator.free(oneCounts);
+
+    for (zeroCounts) |*zero| {
+        zero.* = 0;
+    }
+
+    for (oneCounts) |*one| {
+        one.* = 0;
+    }
+
+    for (nums) |num| {
+        for (num) |digit, index| {
+            if (digit == '0') {
+                zeroCounts[index] += 1;
+            } else {
+                oneCounts[index] += 1;
+            }
+        }
+    }
+
+    var oxygen: []u8 = try allocator.alloc(u8, numDigits);
+    defer allocator.free(oxygen);
+
+    {
+        var candidates: []?[]const u8 = try allocator.alloc(?[]const u8, nums.len);
+
+        // candidates starts with all nums
+        for (nums) |num, i| candidates[i] = num;
+
+        var i: usize = 0;
+        while (i < numDigits) {
+            const digitMustBe: u8 = if (zeroCounts[i] > oneCounts[i]) '0' else '1';
+
+            // null out all candidates that don't have the required digit
+            for (candidates) |candidate, candidateIndex| {
+
+                if (candidate) |candidateNotNull| {
+                    if (candidateNotNull[i] != digitMustBe) {
+                        candidates[candidateIndex] = null;
+                    }
+                }
+            }
+
+            i += 1;
+        }
+    }
+
+    var co2: []u8 = try allocator.alloc(u8, numDigits);
+    defer allocator.free(co2);
+
+    return 0;
 }
 
 const expect = std.testing.expect;
