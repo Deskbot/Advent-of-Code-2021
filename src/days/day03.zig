@@ -141,7 +141,9 @@ fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
             // if equal, we want 1
             var wanted: u8 = if (zeroCounts[index] > oneCounts[index]) '0' else '1';
 
-            oxygenCandidates = try filter([]const u8, oxygenCandidates, digitIs(index, wanted), allocator);
+            var tmp = try filter([]const u8, oxygenCandidates, digitIs(index, wanted), allocator);
+            allocator.free(oxygenCandidates);
+            oxygenCandidates = tmp;
 
             index += 1;
         }
@@ -162,7 +164,9 @@ fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
             // if equal, we want 0
             var wanted: u8 = if (zeroCounts[index] > oneCounts[index]) '1' else '0';
 
-            co2Candidates = try filter([]const u8, co2Candidates, digitIs(index, wanted), allocator);
+            var tmp = try filter([]const u8, co2Candidates, digitIs(index, wanted), allocator);
+            allocator.free(co2Candidates);
+            co2Candidates = tmp;
 
             index += 1;
         }
