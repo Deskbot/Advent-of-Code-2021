@@ -2,6 +2,34 @@
 
 ---
 
+This local array `arr` holds `[3]i64`, you need to do `&arr` to get a `[]i64`.
+
+```
+const std = @import("std");
+const stdout = std.io.getStdOut().writer();
+
+pub fn main() anyerror!void {
+    var arr: [3]i64 = .{0,0,0};
+
+    const result = sum(arr);  //bad
+    const result = sum(&arr); //good
+
+    _ = try stdout.print("{}\n", .{result});
+}
+
+fn sum(arr: []const i64) i64 {
+    var result: i64 = 0 ;
+
+    for (arr) |elem| {
+        result += elem;
+    }
+
+    return result;
+}
+```
+
+---
+
 When running tests, if any file is imported that is higher up in your project than the test file, you will get an error.
 
 Example folder structure:
