@@ -4,9 +4,15 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "zig build",
             "type": "shell",
-            "command": "zig build "
+            "command": "zig build"
+        },
+        {
+            "label": "v build",
+            "type": "shell",
+            "command": "./v/v",
+            "args": ["src/main.v", "-o", "v-out/main"]
         }
     ]
 }

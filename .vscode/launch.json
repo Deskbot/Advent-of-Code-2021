@@ -5,23 +5,33 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "GDB Debug",
+            "name": "Zig GDB Debug",
             "type": "cppdbg",
             "miDebuggerPath": "gdb",
             "request": "launch",
             "program": "${workspaceFolder}/zig-out/bin/2021",
             "cwd": "${workspaceFolder}",
             "valuesFormatting": "parseText",
-            "preLaunchTask": "build",
+            "preLaunchTask": "zig build",
         },
         {
-            "name": "LLDB Debug",
+            "name": "Zig LLDB Debug",
             "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/zig-out/bin/2021",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build",
+            "preLaunchTask": "zig build",
+        },
+        {
+            "name": "V GDB Debug",
+            "type": "cppdbg",
+            "miDebuggerPath": "gdb",
+            "request": "launch",
+            "program": "${workspaceFolder}/v-out/main",
+            "cwd": "${workspaceFolder}",
+            "valuesFormatting": "parseText",
+            "preLaunchTask": "v build",
         }
     ]
 }
