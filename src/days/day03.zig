@@ -200,7 +200,7 @@ fn digitIs(index: usize, wanted: u8) fn (digit: []const u8) bool {
 
 const expect = std.testing.expect;
 
-test "part 1 example" {
+test "example" {
     const inputStr =
         \\ 00100
         \\ 11110
@@ -225,7 +225,9 @@ test "part 1 example" {
     const input = inputList.items;
     const numDigits = input[0].len;
 
-    const result = try part1(input, numDigits, &gpa.allocator);
+    const part1Result = try part1(input, numDigits, &gpa.allocator);
+    try expect(part1Result == 198);
 
-    try expect(result == 198);
+    const part2Result = try part2(input, numDigits, &gpa.allocator);
+    try expect(part2Result == 230);
 }
