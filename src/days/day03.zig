@@ -127,27 +127,51 @@ fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
         }
     }
 
+    // find oxygen
+
     var oxygenCandidates: [][]const u8 = try allocator.alloc([]const u8, nums.len);
     defer allocator.free(oxygenCandidates);
 
     mem.copy([]const u8, oxygenCandidates, nums);
 
-    var index: usize = 0;
+    {
+        var index: usize = 0;
 
-    while (oxygenCandidates.len != 1) {
-        var wanted: u8 = if (zeroCounts[index] > oneCounts[index]) '0' else '1';
+        while (oxygenCandidates.len != 1) {
+            // if equal, we want 1
+            var wanted: u8 = if (zeroCounts[index] > oneCounts[index]) '0' else '1';
 
-        oxygenCandidates = try filter([]const u8, oxygenCandidates, digitIs(index, wanted), allocator);
+            oxygenCandidates = try filter([]const u8, oxygenCandidates, digitIs(index, wanted), allocator);
 
-        index += 1;
+            index += 1;
+        }
     }
 
-    const oxygen = oxygenCandidates[0];
+    // find co2
 
-    // var co2: []u8 = try allocator.alloc(u8, numDigits);
-    // defer allocator.free(co2);
+    var co2Candidates: [][]const u8 = try allocator.alloc([]const u8, nums.len);
+    defer allocator.free(co2Candidates);
 
-    return 0;
+    mem.copy([]const u8, co2Candidates, nums);
+
+    {
+        var index: usize = 0;
+
+        while (co2Candidates.len != 1) {
+            // we want the opposite of the digit we wanted for oxygen
+            // if equal, we want 0
+            var wanted: u8 = if (zeroCounts[index] > oneCounts[index]) '1' else '0';
+
+            co2Candidates = try filter([]const u8, co2Candidates, digitIs(index, wanted), allocator);
+
+            index += 1;
+        }
+    }
+
+    const oxygen = try fmt.parseInt(i64, oxygenCandidates[0], 2);
+    const co2 = try fmt.parseInt(i64, co2Candidates[0], 2);
+
+    return oxygen * co2;
 }
 
 fn digitIs(index: usize, wanted: u8) fn (digit: []const u8) bool {
