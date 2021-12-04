@@ -7,6 +7,7 @@ const os = std.os;
 const io = std.io;
 const mem = std.mem;
 
+const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
 const File = std.fs.File;
 const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator;
@@ -16,14 +17,17 @@ const stdout = std.io.getStdOut().writer();
 pub fn day02() anyerror!void {
     _ = try stdout.print("Day 02\n", .{});
 
+    var gpa = GeneralPurposeAllocator(.{}){};
+
     var file = try std.fs.cwd().openFile("./input/Day02.txt", .{});
     defer file.close();
 
-    const input = try parseInput(&file.reader());
+    const input = try parseInput(&file.reader(), &gpa.allocator);
+    defer input.deinit();
 
-    _ = try stdout.print("Part 1 {}\n", .{part1(input)});
+    _ = try stdout.print("Part 1 {}\n", .{part1(input.items)});
 
-    _ = try stdout.print("Part 2 {}\n", .{part2(input)});
+    _ = try stdout.print("Part 2 {}\n", .{part2(input.items)});
 }
 
 const Direction = enum {
@@ -37,10 +41,8 @@ const Command = struct {
     magnitude: i64,
 };
 
-fn parseInput(reader: *File.Reader) ![]Command {
-    var gpa = GeneralPurposeAllocator(.{}){};
-
-    var result = ArrayList(Command).init(&gpa.allocator);
+fn parseInput(reader: *File.Reader, allocator: *Allocator) !ArrayList(Command) {
+    var result = ArrayList(Command).init(allocator);
 
     var buf: [1024]u8 = undefined;
     while (try reader.readUntilDelimiterOrEof(&buf, '\n')) |line| {
@@ -58,7 +60,7 @@ fn parseInput(reader: *File.Reader) ![]Command {
         });
     }
 
-    return result.items;
+    return result;
 }
 
 fn parseDirection(str: []const u8) !Direction {

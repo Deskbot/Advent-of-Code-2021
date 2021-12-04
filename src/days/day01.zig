@@ -5,6 +5,7 @@ const fs = std.fs;
 const os = std.os;
 const io = std.io;
 
+const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
 const File = std.fs.File;
 const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator;
@@ -14,10 +15,13 @@ const stdout = std.io.getStdOut().writer();
 pub fn day01() anyerror!void {
     _ = try stdout.print("Day 01\n", .{});
 
+    var gpa = GeneralPurposeAllocator(.{}){};
+
     var file = try std.fs.cwd().openFile("./input/Day01.txt", .{});
     defer file.close();
 
-    const input = try parseInput(&file.reader());
+    const input = try parseInput(&file.reader(), &gpa.allocator);
+    defer input.deinit();
 
     const part1Result = try part1(&input);
     _ = try stdout.print("Part 1 {}\n", .{part1Result});
@@ -26,10 +30,8 @@ pub fn day01() anyerror!void {
     _ = try stdout.print("Part 2 {}\n", .{part2Result});
 }
 
-fn parseInput(reader: *File.Reader) !ArrayList(i64) {
-    var gpa = GeneralPurposeAllocator(.{}){};
-
-    var result = ArrayList(i64).init(&gpa.allocator);
+fn parseInput(reader: *File.Reader, allocator: *Allocator) !ArrayList(i64) {
+    var result = ArrayList(i64).init(allocator);
 
     var buf: [1024]u8 = undefined;
     while (try reader.readUntilDelimiterOrEof(&buf, '\n')) |line| {
