@@ -70,30 +70,28 @@ fn parse_input(input string) ([]i64, []Board) {
 			return board_str != ""
 		})
 		.map(fn (board_str string) [][]i64 {
-			// println("'" + board_str + "'")
-			return board_str.split("\n")
-
-				// ignore empty lines
+			filtered_lines := board_str.split("\n")
 				.filter(fn (line string) bool {
 					return line != ""
 				})
 
-				// turn every line into a list of ints
-				.map(fn (line string) []i64 {
-					mut digits := line.trim(" \n").split(" ")
-					// println(digits)
+			// turn every line into a list of ints
+			return filtered_lines.map(fn (line string) []i64 {
+				mut digits := line.trim(" \n").split(" ")
 
-					mut actual_digits := digits.filter(fn (digit string) bool {
-						return digit != ""
-					})
-					// println("actual digits: " + actual_digits.str())
-
-					return actual_digits.map(fn (digit string) i64 {
-						// println("digit: " + digit)
-						return strconv.parse_int(digit, 10, 64)
-							or { panic("Can't parse digit: '" + digit + "'") }
-					})
+				mut actual_digits := digits.filter(fn (digit string) bool {
+					return digit != ""
 				})
+
+				println("---")
+				println(actual_digits)
+				println(actual_digits.len.str())
+
+				return actual_digits.map(fn (digit string) i64 {
+					return strconv.parse_int(digit, 10, 64)
+						or { panic("Can't parse digit: '" + digit + "'") }
+				})
+			})
 		})
 
 	boards := grids.map(new_board)
