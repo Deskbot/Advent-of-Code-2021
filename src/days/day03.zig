@@ -12,6 +12,8 @@ const ArrayList = std.ArrayList;
 const File = std.fs.File;
 const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator;
 
+const filter = @import("../utils/filter.zig").filter;
+
 const stdout = std.io.getStdOut().writer();
 
 pub fn day03() anyerror!void {
@@ -125,8 +127,22 @@ fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
         }
     }
 
-    var oxygen: []u8 = try filterOxygen(nums, numDigits, allocator); // = try allocator.alloc(u8, numDigits);
-    // defer allocator.free(oxygen);
+    var oxygenCandidates: [][]const u8 = try allocator.alloc([]const u8, nums.len);
+    defer allocator.free(oxygenCandidates);
+
+    mem.copy([]const u8, oxygenCandidates, nums);
+
+    var index: usize = 0;
+
+    while (oxygenCandidates.len != 1) {
+        var wanted: u8 = if (zeroCounts[index] > oneCounts[index]) '0' else '1';
+
+        oxygenCandidates = try filter([]const u8, oxygenCandidates, digitIs(index, wanted), allocator);
+
+        index += 1;
+    }
+
+    const oxygen = oxygenCandidates[0];
 
     // var co2: []u8 = try allocator.alloc(u8, numDigits);
     // defer allocator.free(co2);
@@ -134,41 +150,18 @@ fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
     return 0;
 }
 
-fn filterOxygen(nums: []const []const u8, numDigits: usize, allocator: *Allocator) ![]u8 {
-    var candidates: ArrayList([]const u8) = ArrayList([]const u8).init(allocator);
-    defer allocator.free(&candidates);
+fn digitIs(index: usize, wanted: u8) fn (digit: []const u8) bool {
+    const Capture = struct {
+        index: usize,
 
-    // candidates starts with all nums
-    for (nums) |num, i| try candidates.append(num);
-
-    // each iteration filter out invalid candidates
-    var i: usize = 0;
-    while (i < numDigits) {
-        // build up this list of matching candidates
-        var filteredCandidates = ArrayList([]u8).init(allocator);
-
-        const digitMustBe: u8 = if (zeroCounts[i] > oneCounts[i]) '0' else '1';
-
-        for (candidates) |candidate| {
-            if (candidate == digitMustBe) {
-                filteredCandidates.append(candidate);
-            }
+        pub fn f(self: @This(), digit: []const u8) bool {
+            return digit[self.index] == wanted;
         }
+    };
 
-        allocator.free(candidates);
+    const cap = Capture{.index = index};
 
-        // if there's only one candidate left, it's this one so return it
-        if (filteredCandidates.items.len == 1) {
-            return filteredCandidates.pop();
-        }
-
-        // overwrite the candidates with the filtered candidates
-        candidates = filteredCandidates;
-
-        i += 1;
-    }
-
-    return unreachable;
+    return cap.f;
 }
 
 const expect = std.testing.expect;

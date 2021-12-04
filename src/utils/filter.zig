@@ -14,7 +14,7 @@ const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator;
 
 const stdout = std.io.getStdOut().writer();
 
-fn filter(comptime T: type, arr: []const T, predicate: fn (elem: T) bool, allocator: *Allocator) ![]T {
+pub fn filter(comptime T: type, arr: []const T, predicate: fn (elem: T) bool, allocator: *Allocator) ![]T {
     // create array big enough to hold all of the given values
     var newArr: []T = try allocator.alloc(T, arr.len);
     defer allocator.free(newArr);
