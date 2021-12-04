@@ -125,37 +125,50 @@ fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
         }
     }
 
-    var oxygen: []u8 = try allocator.alloc(u8, numDigits);
-    defer allocator.free(oxygen);
+    var oxygen: []u8 = try filterOxygen(nums, numDigits, allocator); // = try allocator.alloc(u8, numDigits);
+    // defer allocator.free(oxygen);
 
-    {
-        var candidates: []?[]const u8 = try allocator.alloc(?[]const u8, nums.len);
-
-        // candidates starts with all nums
-        for (nums) |num, i| candidates[i] = num;
-
-        var i: usize = 0;
-        while (i < numDigits) {
-            const digitMustBe: u8 = if (zeroCounts[i] > oneCounts[i]) '0' else '1';
-
-            // null out all candidates that don't have the required digit
-            for (candidates) |candidate, candidateIndex| {
-
-                if (candidate) |candidateNotNull| {
-                    if (candidateNotNull[i] != digitMustBe) {
-                        candidates[candidateIndex] = null;
-                    }
-                }
-            }
-
-            i += 1;
-        }
-    }
-
-    var co2: []u8 = try allocator.alloc(u8, numDigits);
-    defer allocator.free(co2);
+    // var co2: []u8 = try allocator.alloc(u8, numDigits);
+    // defer allocator.free(co2);
 
     return 0;
+}
+
+fn filterOxygen(nums: []const []const u8, numDigits: usize, allocator: *Allocator) ![]u8 {
+    var candidates: ArrayList([]const u8) = ArrayList([]const u8).init(allocator);
+    defer allocator.free(&candidates);
+
+    // candidates starts with all nums
+    for (nums) |num, i| try candidates.append(num);
+
+    // each iteration filter out invalid candidates
+    var i: usize = 0;
+    while (i < numDigits) {
+        // build up this list of matching candidates
+        var filteredCandidates = ArrayList([]u8).init(allocator);
+
+        const digitMustBe: u8 = if (zeroCounts[i] > oneCounts[i]) '0' else '1';
+
+        for (candidates) |candidate| {
+            if (candidate == digitMustBe) {
+                filteredCandidates.append(candidate);
+            }
+        }
+
+        allocator.free(candidates);
+
+        // if there's only one candidate left, it's this one so return it
+        if (filteredCandidates.items.len == 1) {
+            return filteredCandidates.pop();
+        }
+
+        // overwrite the candidates with the filtered candidates
+        candidates = filteredCandidates;
+
+        i += 1;
+    }
+
+    return unreachable;
 }
 
 const expect = std.testing.expect;
