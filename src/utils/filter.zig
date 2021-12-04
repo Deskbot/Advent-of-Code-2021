@@ -23,7 +23,7 @@ pub fn filter(comptime T: type, arr: []const T, predicate: fn (elem: T) bool, al
 
     for (arr) |elem, i| {
         if (predicate(elem)) {
-            newArr[i] = elem;
+            newArr[elemsKept] = elem;
             elemsKept += 1;
         }
     }
@@ -31,7 +31,7 @@ pub fn filter(comptime T: type, arr: []const T, predicate: fn (elem: T) bool, al
     // create an array that is the exact size needed to hold the filtered elements
     var returnedArr = try allocator.alloc(T, elemsKept);
 
-    mem.copy(T, returnedArr[0..elemsKept], newArr[0..elemsKept]);
+    mem.copy(T, returnedArr, newArr[0..elemsKept]);
 
     return returnedArr;
 }

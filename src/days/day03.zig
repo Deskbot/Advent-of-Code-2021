@@ -151,17 +151,23 @@ fn part2(nums: []const []const u8, numDigits: usize, allocator: *Allocator) !i64
 }
 
 fn digitIs(index: usize, wanted: u8) fn (digit: []const u8) bool {
-    const Capture = struct {
-        index: usize,
+    const Lambda = struct {
+        var lambdaIndex: usize = undefined;
+        var lambdaWanted: u8 = undefined;
 
-        pub fn f(self: @This(), digit: []const u8) bool {
-            return digit[self.index] == wanted;
+        pub fn capture(capturedIndex: usize, capturedWanted: u8) void {
+            lambdaIndex = capturedIndex;
+            lambdaWanted = capturedWanted;
+        }
+
+        pub fn f(digit: []const u8) bool {
+            return digit[lambdaIndex] == lambdaWanted;
         }
     };
 
-    const cap = Capture{.index = index};
+    Lambda.capture(index, wanted);
 
-    return cap.f;
+    return Lambda.f;
 }
 
 const expect = std.testing.expect;
