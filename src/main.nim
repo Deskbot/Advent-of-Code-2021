@@ -654,12 +654,23 @@ proc hasWon(board: Board): bool =
     return false
 
 proc findWinner(boards: var seq[var Board]): Option[Board] =
+    # causes a compiler bug?
     for num in nums:
         for i, board in boards.mpairs:
             board.hearNumber(num)
 
             if board.hasWon():
                 return some(board)
+
+    # this segfaults for some reason
+    # for num in nums:
+    #     for i in 0..(boards.len - 1):
+    #         var board = boards[i]
+
+    #         board.hearNumber(num)
+
+    #         if board.hasWon():
+    #             return some(board)
 
     return none(Board)
 

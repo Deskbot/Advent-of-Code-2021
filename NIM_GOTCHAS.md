@@ -22,6 +22,8 @@ for i, elem in arr.pairs:
 
 ---
 
-The language just lets your data get garbled apparently.
+`mpairs` doesn't seem to iterate through a sequence of objects properly
+
+some data in my objects gets shifted to a different object, like it assumes the elements are much smaller than they actually are
 
 ---
