@@ -26,7 +26,7 @@ Language: V
 ./v/v src/main.v -o v-out/main && ./v-out/main
 ```
 
-## Days: 4-
+## Days: 4
 
 Language: Nim
 
