@@ -612,6 +612,7 @@ type
     Board = object
         grid: Grid[int]
         checks: Grid[bool]
+        lastNum: int
 
 iterator lines[T](grid: Grid[T]): array[5, T] =
     for line in grid:
@@ -626,9 +627,15 @@ iterator rows[T](grid: Grid[T]): array[5, T] =
 
         yield col
 
-proc newBoard(grid: Grid[int]): Board = Board(grid: grid)
+proc newBoard(grid: Grid[int]): Board =
+    Board(
+        grid: grid,
+        lastNum: 0,
+    )
 
 proc hearNumber(board: var Board, num: int) =
+    board.lastNum = num
+
     for i, line in board.grid:
         for j, cell in line:
             if cell == num:
@@ -647,4 +654,30 @@ proc hasWon(board: Board): bool =
 
     return false
 
-let boards = map(grids, newBoard)
+proc findWinner(boards: seq[var Board]): Board =
+    for num in nums:
+        for i, _ in boards:
+            var board = boards[i]
+
+            board.hearNumber(num)
+
+            if board.hasWon():
+                return board
+
+proc score(board: Board): int =
+    var sum = 0
+
+    for i in countup(0,5):
+        for j in countup(0,5):
+            if board.checks[i][j]:
+                sum += board.grid[i][j]
+
+    return sum * board.lastNum
+
+proc part1(): void =
+    let boards = map(grids, newBoard)
+    let winnerBoard = findWinner(boards)
+
+    echo "Day 4 Part 1: ", winnerBoard.score()
+
+part1()
