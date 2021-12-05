@@ -1,3 +1,4 @@
+import std/options
 import std/sequtils
 
 let nums = @[4,75,74,31,76,79,27,19,69,46,98,59,83,23,90,52,87,6,11,92,80,51,43,5,94,17,15,67,25,30,48,47,62,71,85,58,60,1,72,99,3,35,42,10,96,49,37,36,8,44,70,40,45,39,0,63,2,78,68,53,50,77,20,55,38,86,54,93,26,88,12,91,95,34,9,14,33,66,41,13,28,57,29,73,56,22,89,21,64,61,32,65,97,84,18,82,81,7,16,24]
@@ -654,7 +655,7 @@ proc hasWon(board: Board): bool =
 
     return false
 
-proc findWinner(boards: seq[var Board]): Board =
+proc findWinner(boards: seq[var Board]): Option[Board] =
     for num in nums:
         for i, _ in boards:
             var board = boards[i]
@@ -662,7 +663,9 @@ proc findWinner(boards: seq[var Board]): Board =
             board.hearNumber(num)
 
             if board.hasWon():
-                return board
+                return some(board)
+
+    return none(Board)
 
 proc score(board: Board): int =
     var sum = 0
@@ -678,6 +681,7 @@ proc part1(): void =
     let boards = map(grids, newBoard)
     let winnerBoard = findWinner(boards)
 
-    echo "Day 4 Part 1: ", winnerBoard.score()
+    if winnerBoard.isSome():
+        echo "Day 4 Part 1: ", winnerBoard.get().score()
 
 part1()
