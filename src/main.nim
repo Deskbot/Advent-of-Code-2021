@@ -1,3 +1,4 @@
+import system/iterators
 import std/options
 import std/sequtils
 
@@ -622,23 +623,20 @@ iterator lines[T](grid: Grid[T]): array[5, T] =
 iterator rows[T](grid: Grid[T]): array[5, T] =
     var col: array[5, T]
 
-    for colNum in countup(0,5):
+    for colNum in countup(0,4):
         for line in grid:
             col[colNum] = line[colNum]
 
         yield col
 
 proc newBoard(grid: Grid[int]): Board =
-    Board(
-        grid: grid,
-        lastNum: 0,
-    )
+    Board(grid: grid)
 
 proc hearNumber(board: var Board, num: int) =
     board.lastNum = num
 
-    for i, line in board.grid:
-        for j, cell in line:
+    for i, line in board.grid.pairs:
+        for j, cell in line.pairs:
             if cell == num:
                 board.checks[i][j] = true
 
@@ -655,11 +653,9 @@ proc hasWon(board: Board): bool =
 
     return false
 
-proc findWinner(boards: seq[var Board]): Option[Board] =
+proc findWinner(boards: var seq[var Board]): Option[Board] =
     for num in nums:
-        for i, _ in boards:
-            var board = boards[i]
-
+        for i, board in boards.mpairs:
             board.hearNumber(num)
 
             if board.hasWon():
@@ -670,15 +666,15 @@ proc findWinner(boards: seq[var Board]): Option[Board] =
 proc score(board: Board): int =
     var sum = 0
 
-    for i in countup(0,5):
-        for j in countup(0,5):
+    for i in countup(0,4):
+        for j in countup(0,4):
             if board.checks[i][j]:
                 sum += board.grid[i][j]
 
     return sum * board.lastNum
 
 proc part1(): void =
-    let boards = map(grids, newBoard)
+    var boards = map(grids, newBoard)
     let winnerBoard = findWinner(boards)
 
     if winnerBoard.isSome():
