@@ -13,6 +13,7 @@ const File = std.fs.File;
 const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator;
 
 const filter = @import("../utils/filter.zig").filter;
+const arr = @import("../utils/arr.zig");
 
 const stdout = std.io.getStdOut().writer();
 
@@ -25,6 +26,8 @@ const Board = struct {
     checks: Grid(bool),
     lastNum: i64,
 
+    const indexes = [5]usize{ 0, 1, 2, 3, 4 };
+
     pub fn new_board(grid: Grid(i64)) @This() {
         return @This(){
             .grid = grid,
@@ -33,28 +36,89 @@ const Board = struct {
         };
     }
 
-    pub fn findWinner() Board {}
+    pub fn has_won(board: *const Board) bool {
+        for (board.checks) |row| {
+            if (arr.all(&row)) {
+                return true;
+            }
+        }
+
+        var col: [5]bool = undefined;
+
+        for (indexes) |colNum| {
+            for (indexes) |rowNum| {
+                if (col[rowNum]) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    pub fn hear_number(board: *Board, num: i64) void {
+        board.lastNum = num;
+
+        for (board.grid) |line, i| {
+            for (line) |cell, j| {
+                if (cell == num) {
+                    board.checks[i][j] = true;
+                }
+            }
+        }
+    }
+
+    pub fn find_winner(boards: []Board) ?*Board {
+        for (nums) |num| {
+            for (boards) |*board, i| {
+                board.hear_number(num);
+
+                if (board.has_won()) {
+                    return board;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    pub fn score(board: *const Board) i64 {
+        var sum: i64 = 0;
+
+        for (indexes) |i| {
+            for (indexes) |j| {
+                if (board.checks[i][j]) {
+                    sum += board.grid[i][j];
+                }
+            }
+        }
+
+        return sum * board.lastNum;
+    }
 };
 
 pub fn day04() anyerror!void {
     _ = try stdout.print("Day 04\n", .{});
 
-    _ = try stdout.print("Part 1 {s}\n", .{try part1()});
+    _ = try stdout.print("Part 1 {}\n", .{try part1()});
 
     // _ = try stdout.print("Part 2 {}\n", .{try part2(input, numDigits, &gpa.allocator)});
 }
 
-fn part1() ![]u8 {
+fn part1() !i64 {
     var boards: [grids.len]Board = undefined;
 
     for (grids) |grid, i| {
         boards[i] = Board.new_board(grid);
     }
 
-    _ = try stdout.print("Part 1 {any}\n", .{nums});
-    _ = try stdout.print("Part 1 {any}\n", .{boards});
+    const winnerBoard = Board.find_winner(&boards);
 
-    return "";
+    if (winnerBoard) |_winnerBoard| {
+        return _winnerBoard.score();
+    }
+
+    return -1;
 }
 
 const nums = [_]i64{ 4, 75, 74, 31, 76, 79, 27, 19, 69, 46, 98, 59, 83, 23, 90, 52, 87, 6, 11, 92, 80, 51, 43, 5, 94, 17, 15, 67, 25, 30, 48, 47, 62, 71, 85, 58, 60, 1, 72, 99, 3, 35, 42, 10, 96, 49, 37, 36, 8, 44, 70, 40, 45, 39, 0, 63, 2, 78, 68, 53, 50, 77, 20, 55, 38, 86, 54, 93, 26, 88, 12, 91, 95, 34, 9, 14, 33, 66, 41, 13, 28, 57, 29, 73, 56, 22, 89, 21, 64, 61, 32, 65, 97, 84, 18, 82, 81, 7, 16, 24 };
