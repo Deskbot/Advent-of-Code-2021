@@ -54,3 +54,17 @@ zig test src/days/day03.zig --main-pkg-path src
 ```
 
 ---
+
+Array literals require a size.
+
+If you want the size to be inferred use `[_]int64{ ... }`.
+
+Don't use `.{}` for arrays.
+
+You can't infer the size of a multidimensional array. `[_][_]int64 // BAD!`
+
+---
+
+If an assignment gets optimised out by the compiler because it's not used, the assignment doesn't have to be type correct for compilation to complete.
+
+---
