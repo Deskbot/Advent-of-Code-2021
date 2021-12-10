@@ -91,6 +91,30 @@ const Board = struct {
         return null;
     }
 
+    pub fn find_the_mega_loser(boards: []Board) ?*Board {
+        var lastWinner: ?*Board = null;
+
+        for (nums) |num| {
+            for (boards) |*board, i| {
+
+                // has already won, so just ignore it
+                // it's like filtering the array without filtering it
+                if (board.has_won()) {
+                    continue;
+                }
+
+                board.hear_number(num);
+
+                // if it has now won, it's the last winner
+                if (board.has_won()) {
+                    lastWinner = board;
+                }
+            }
+        }
+
+        return lastWinner;
+    }
+
     pub fn score(board: *const Board) i64 {
         var sum: i64 = 0;
 
@@ -111,7 +135,7 @@ pub fn day04() anyerror!void {
 
     _ = try stdout.print("Part 1 {}\n", .{try part1()});
 
-    // _ = try stdout.print("Part 2 {}\n", .{try part2(input, numDigits, &gpa.allocator)});
+    _ = try stdout.print("Part 2 {}\n", .{try part2()});
 }
 
 fn part1() !i64 {
@@ -125,6 +149,22 @@ fn part1() !i64 {
 
     if (winnerBoard) |_winnerBoard| {
         return _winnerBoard.score();
+    }
+
+    return -1;
+}
+
+fn part2() !i64 {
+    var boards: [grids.len]Board = undefined;
+
+    for (grids) |grid, i| {
+        boards[i] = Board.new_board(grid);
+    }
+
+    const loserBoard = Board.find_the_mega_loser(&boards);
+
+    if (loserBoard) |_loserBoard| {
+        return _loserBoard.score();
     }
 
     return -1;
