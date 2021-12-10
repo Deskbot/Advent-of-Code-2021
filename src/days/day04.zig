@@ -37,19 +37,28 @@ const Board = struct {
     }
 
     pub fn has_won(board: *const Board) bool {
-        for (board.checks) |row| {
-            if (arr.all(&row)) {
+        // if whole line is true, has won
+        for (board.checks) |line| {
+            if (arr.all(&line)) {
                 return true;
             }
         }
 
-        var col: [5]bool = undefined;
-
+        // if whole column is true, has won
         for (indexes) |colNum| {
-            for (indexes) |rowNum| {
-                if (col[rowNum]) {
-                    return true;
+
+            // check the cell at the current column index in each line
+            var allChecked: bool = true;
+
+            for (board.checks) |line| {
+                if (!line[colNum]) {
+                    allChecked = false;
+                    break;
                 }
+            }
+
+            if (allChecked) {
+                return true;
             }
         }
 
@@ -87,7 +96,7 @@ const Board = struct {
 
         for (indexes) |i| {
             for (indexes) |j| {
-                if (board.checks[i][j]) {
+                if (!board.checks[i][j]) {
                     sum += board.grid[i][j];
                 }
             }
