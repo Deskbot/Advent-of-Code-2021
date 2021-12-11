@@ -57,15 +57,15 @@ const LanternFish = struct {
     }
 
     // returns whether the fish gave birth
-    pub fn passOneDay(lanternFish: *LanternFish) ?LanternFish {
+    pub fn passOneDay(lanternFish: *LanternFish) bool {
         // increment the timer
         if (lanternFish.timer == 0) {
             lanternFish.timer = 6;
+            return true;
         } else {
-            lanternFish.timer += 1;
+            lanternFish.timer -= 1;
+            return false;
         }
-
-        return @This().new(8);
     }
 };
 
@@ -85,12 +85,15 @@ const School = struct {
     }
 
     pub fn passOneDay(school: *@This()) !void {
+        // create a list of new fish and append them when the list is complete
+        // don't add to the list while iterating through it
         var newFishArr = ArrayList(LanternFish).init(school.allocator);
         defer newFishArr.deinit();
 
         for (school.fish.items) |*fish| {
-            if (fish.passOneDay()) |newFish| {
-                try newFishArr.append(newFish);
+            if (fish.passOneDay()) {
+                // create new fish with a timer of 8
+                try newFishArr.append(LanternFish.new(8));
             }
         }
 
@@ -98,11 +101,13 @@ const School = struct {
     }
 
     pub fn passSevenDays(school: *@This()) !void {
+        // create a list of new fish and append them when the list is complete
+        // don't add to the list while iterating through it
         var newFishArr = ArrayList(LanternFish).init(school.allocator);
         defer newFishArr.deinit();
 
         for (school.fish.items) |*fish| {
-            try newFishArr.append(LanternFish.new(fish.timer));
+            try newFishArr.append(LanternFish.new(fish.timer + 2));
         }
 
         try school.fish.appendSlice(newFishArr.items);
@@ -131,3 +136,5 @@ const School = struct {
 };
 
 // too big 4915200
+// too big  614556
+// too big  614440
