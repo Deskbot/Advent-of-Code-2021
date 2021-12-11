@@ -5,7 +5,9 @@ const fmt = std.fmt;
 const fs = std.fs;
 const os = std.os;
 const io = std.io;
+const math = std.math;
 const mem = std.mem;
+const sort = std.sort;
 
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
@@ -31,7 +33,7 @@ pub fn day06() !void {
 
 fn part1(input: []const i64, allocator: *Allocator) !i64 {
     var fish = try ArrayList(LanternFish).initCapacity(allocator, input.len);
-    defer fish.deinit();
+    // defer fish.deinit();
 
     for (input) |num| {
         try fish.append(LanternFish.new(num));
@@ -40,13 +42,7 @@ fn part1(input: []const i64, allocator: *Allocator) !i64 {
     var school = School.new(fish, allocator);
     defer school.deinit();
 
-    var day: i64 = 0;
-
-    while (day <= 80) {
-        day += 1; // start at day 1
-
-        try school.passOneDay();
-    }
+    try school.passDays(80);
 
     return @intCast(i64, school.size());
 }
@@ -101,7 +97,37 @@ const School = struct {
         try school.fish.appendSlice(newFishArr.items);
     }
 
+    pub fn passSevenDays(school: *@This()) !void {
+        var newFishArr = ArrayList(LanternFish).init(school.allocator);
+        defer newFishArr.deinit();
+
+        for (school.fish.items) |*fish| {
+            try newFishArr.append(LanternFish.new(fish.timer));
+        }
+
+        try school.fish.appendSlice(newFishArr.items);
+    }
+
+    pub fn passDays(school: *@This(), daysToPass: i64) !void {
+        const weeks = @divFloor(daysToPass, 7);
+        const days = @rem(daysToPass, 7);
+
+        var weeksDone: i64 = 0;
+        while (weeksDone < weeks) {
+            try school.passSevenDays();
+            weeksDone += 1;
+        }
+
+        var daysDone: i64 = 0;
+        while (daysDone < days) {
+            try school.passOneDay();
+            daysDone += 1;
+        }
+    }
+
     pub fn size(school: @This()) usize {
         return school.fish.items.len;
     }
 };
+
+// too big 4915200
