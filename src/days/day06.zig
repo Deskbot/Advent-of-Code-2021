@@ -10,6 +10,7 @@ const mem = std.mem;
 const sort = std.sort;
 
 const Allocator = std.mem.Allocator;
+const ArrayHashMap = std.ArrayHashMap;
 const ArrayList = std.ArrayList;
 const File = std.fs.File;
 const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator;
@@ -49,14 +50,13 @@ fn part1(input: []const i64, allocator: *Allocator) !i64 {
 
 fn part2(input: []const i64, allocator: *Allocator) !i64 {
     var fish = try ArrayList(LanternFish).initCapacity(allocator, input.len);
-    // give the ownership of this to school
+    defer fish.deinit();
 
     for (input) |num| {
         try fish.append(LanternFish.new(num));
     }
 
-    var school = School.new(fish, allocator);
-    defer school.deinit();
+    var school = School2.new(fish);
 
     try school.passDays(256);
 
@@ -116,38 +116,7 @@ const School = struct {
         try school.fish.appendSlice(newFishArr.items);
     }
 
-    pub fn passSevenDays(school: *@This()) !void {
-        // create a list of new fish and append them when the list is complete
-        // don't add to the list while iterating through it
-        var newFishArr = ArrayList(LanternFish).init(school.allocator);
-        defer newFishArr.deinit();
-
-        for (school.fish.items) |*fish| {
-            // only fish with a timer of 6 or less will actually have a child in the next week
-            if (fish.timer <= 6) {
-                try newFishArr.append(LanternFish.new(fish.timer + 2));
-            }
-
-            // fish that won't loop back round to having the same timer will have had their timer reduced 7 times
-            else {
-                fish.timer -= 7;
-            }
-        }
-
-        try school.fish.appendSlice(newFishArr.items);
-    }
-
     pub fn passDays(school: *@This(), daysToPass: i64) !void {
-        // const weeks = @divFloor(daysToPass, 7);
-        // const days = @rem(daysToPass, 7);
-
-        // var weeksDone: i64 = 0;
-        // while (weeksDone < weeks) {
-        //     try school.passSevenDays();
-        //     weeksDone += 1;
-        //     _ = try stdout.print("week {} count {} \n", .{ weeksDone, school.size() });
-        // }
-
         const days = daysToPass;
 
         _ = try stdout.print("days ", .{});
@@ -165,6 +134,87 @@ const School = struct {
     }
 };
 
-// day   0 :     300
-// day  56 :   42898
-// day 112 : 5787908
+const School2 = struct {
+    fishMap: [9]i64, // 0 through 8 included
+
+    pub fn new(fish: ArrayList(LanternFish)) @This() {
+        var fishMap: [9]i64 = mem.zeroes([9]i64);
+
+        for (fish.items) |f| {
+            fishMap[@intCast(usize, f.timer)] += 1;
+        }
+
+        return @This(){
+            .fishMap = fishMap,
+        };
+    }
+
+    pub fn passDays(school: *@This(), daysToPass: i64) !void {
+        const weeks = @divFloor(daysToPass, 7);
+        const days = @rem(daysToPass, 7);
+
+        var weeksDone: i64 = 0;
+        while (weeksDone < weeks) {
+            school.passWeek();
+
+            _ = try stdout.print("size {any} \n", .{school.size()});
+
+            weeksDone += 1;
+            // _ = try stdout.print("{} ", .{weeksDone});
+        }
+
+        // _ = try stdout.print("days ", .{});
+
+        var daysDone: i64 = 0;
+        while (daysDone < days) {
+            school.passOneDay();
+            daysDone += 1;
+            // _ = try stdout.print("{} ", .{daysDone});
+        }
+    }
+
+    pub fn passOneDay(school: *@This()) void {
+        school.fishMap[0] = school.fishMap[1];
+        school.fishMap[1] = school.fishMap[2];
+        school.fishMap[2] = school.fishMap[3];
+        school.fishMap[3] = school.fishMap[4];
+        school.fishMap[4] = school.fishMap[5];
+        school.fishMap[5] = school.fishMap[6];
+        school.fishMap[6] = school.fishMap[7] + school.fishMap[0]; // every fish at 0 becomes at 6
+        school.fishMap[7] = school.fishMap[8];
+
+        // every fish at 0 creates a fish at 8
+        school.fishMap[8] = school.fishMap[0];
+    }
+
+    pub fn passWeek(school: *@This()) void {
+
+        // fish with a timer of n, produce a fish with timer n+2
+        school.fishMap[2] += school.fishMap[0];
+        school.fishMap[3] += school.fishMap[1];
+        school.fishMap[4] += school.fishMap[2];
+        school.fishMap[5] += school.fishMap[3];
+        school.fishMap[6] += school.fishMap[4];
+
+        // unless the fish's timer is 7 or 8
+        // in which case their timer goes down by 7
+
+        school.fishMap[0] += school.fishMap[7];
+        school.fishMap[1] += school.fishMap[8];
+
+        school.fishMap[7] = school.fishMap[5];
+        school.fishMap[8] = school.fishMap[6];
+    }
+
+    pub fn size(school: @This()) i64 {
+        var sum: i64 = 0;
+
+        for (school.fishMap) |amount| {
+            sum += amount;
+        }
+
+        return sum;
+    }
+};
+
+// too high 72141502659417871
