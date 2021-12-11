@@ -28,16 +28,99 @@ pub fn day05() anyerror!void {
 
     const input = inputList.items;
 
-    _ = try stdout.print("{any}", .{input});
-
     _ = try stdout.write("Day 05\n");
 
     _ = try stdout.print("Part 1 {}\n", .{try part1(input, &gpa.allocator)});
 }
 
+const Floor = struct {
+    grid: [][]i64,
+
+    pub fn new() @This() {
+        return @This(){
+            .grid = mem.zeroes(),
+        };
+    }
+
+    pub fn draw(floor: *@This(), line: *Line) void {
+        var it: Line.Iterator = line.iter();
+
+        while (it.next()) |point| {
+            floor.grid[point.x][point.y] += 1;
+        }
+    }
+};
+
 const Line = struct {
     start: Point,
     end: Point,
+
+    fn isNotDiagonal(line: *Line) bool {
+        return start.x == end.x or start.y == end.y;
+    }
+
+    pub const Iterator = struct {
+        line: Line,
+        last: ?Point,
+
+        // returns null when done
+        pub fn next(it: *Iterator) ?Point {
+            it.last = it.peekNext();
+            return it.last;
+        }
+
+        // returns null when done
+        pub fn peekNext(it: *const Iterator) ?Point {
+            // start at the start
+            if (it.last == null) {
+                return line.start;
+            }
+
+            // continue from the current point
+            const last = it.last.?;
+
+            // go right
+            if (last.x < line.end.x) {
+                return Point{
+                    .x = last.x + 1,
+                    .y = last.y,
+                };
+            }
+
+            // go left
+            if (last.x > line.end.x) {
+                return Point{
+                    .x = last.x - 1,
+                    .y = last.y,
+                };
+            }
+
+            // go up
+            if (last.y < line.end.y) {
+                return Point{
+                    .x = last.x,
+                    .y = last.y - 1,
+                };
+            }
+
+            // go down
+            if (last.y > line.end.y) {
+                return Point{
+                    .x = last.x,
+                    .y = last.y + 1,
+                };
+            }
+
+            return null;
+        }
+    };
+
+    pub fn iter(line: Line) Iterator {
+        return Iterator{
+            .current = null,
+            .line = line,
+        };
+    }
 };
 
 const Point = struct {
@@ -81,5 +164,13 @@ fn parseLine(line: []const u8) Line {
 }
 
 fn part1(input: []Line, allocator: *Allocator) !i64 {
+    var floor = Floor.new();
+
+    for (input) |*line| {
+        if (line.isNotDiagonal()) {
+            floor.draw(line);
+        }
+    }
+
     return 0;
 }
