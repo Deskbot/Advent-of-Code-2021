@@ -138,17 +138,17 @@ const School = struct {
     }
 
     pub fn passDays(school: *@This(), daysToPass: i64) !void {
-        const weeks = @divFloor(daysToPass, 7);
-        const days = @rem(daysToPass, 7);
+        // const weeks = @divFloor(daysToPass, 7);
+        // const days = @rem(daysToPass, 7);
 
-        _ = try stdout.print("weeks ", .{});
+        // var weeksDone: i64 = 0;
+        // while (weeksDone < weeks) {
+        //     try school.passSevenDays();
+        //     weeksDone += 1;
+        //     _ = try stdout.print("week {} count {} \n", .{ weeksDone, school.size() });
+        // }
 
-        var weeksDone: i64 = 0;
-        while (weeksDone < weeks) {
-            try school.passSevenDays();
-            weeksDone += 1;
-            _ = try stdout.print("{} ", .{weeksDone});
-        }
+        const days = daysToPass;
 
         _ = try stdout.print("days ", .{});
 
@@ -156,7 +156,7 @@ const School = struct {
         while (daysDone < days) {
             try school.passOneDay();
             daysDone += 1;
-            _ = try stdout.print("{} ", .{daysDone});
+            _ = try stdout.print("day {} count {} \n", .{ daysDone, school.size() });
         }
     }
 
@@ -164,3 +164,7 @@ const School = struct {
         return school.fish.items.len;
     }
 };
+
+// day   0 :     300
+// day  56 :   42898
+// day 112 : 5787908
