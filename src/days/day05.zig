@@ -36,9 +36,9 @@ pub fn day05() anyerror!void {
 const Floor = struct {
     grid: [][]i64,
 
-    pub fn new() @This() {
+    pub fn new() @This() { // allocator: *Allocator
         return @This(){
-            .grid = mem.zeroes(),
+            .grid = mem.zeroes([][]i64),
         };
     }
 
@@ -46,7 +46,9 @@ const Floor = struct {
         var it: Line.Iterator = line.iter();
 
         while (it.next()) |point| {
-            floor.grid[point.x][point.y] += 1;
+            const x = @intCast(usize, point.x);
+            const y = @intCast(usize, point.y);
+            floor.grid[x][y] += 1;
         }
     }
 };
@@ -56,7 +58,7 @@ const Line = struct {
     end: Point,
 
     fn isNotDiagonal(line: *Line) bool {
-        return start.x == end.x or start.y == end.y;
+        return line.start.x == line.end.x or line.start.y == line.end.y;
     }
 
     pub const Iterator = struct {
@@ -73,14 +75,14 @@ const Line = struct {
         pub fn peekNext(it: *const Iterator) ?Point {
             // start at the start
             if (it.last == null) {
-                return line.start;
+                return it.line.start;
             }
 
             // continue from the current point
             const last = it.last.?;
 
             // go right
-            if (last.x < line.end.x) {
+            if (last.x < it.line.end.x) {
                 return Point{
                     .x = last.x + 1,
                     .y = last.y,
@@ -88,7 +90,7 @@ const Line = struct {
             }
 
             // go left
-            if (last.x > line.end.x) {
+            if (last.x > it.line.end.x) {
                 return Point{
                     .x = last.x - 1,
                     .y = last.y,
@@ -96,7 +98,7 @@ const Line = struct {
             }
 
             // go up
-            if (last.y < line.end.y) {
+            if (last.y < it.line.end.y) {
                 return Point{
                     .x = last.x,
                     .y = last.y - 1,
@@ -104,7 +106,7 @@ const Line = struct {
             }
 
             // go down
-            if (last.y > line.end.y) {
+            if (last.y > it.line.end.y) {
                 return Point{
                     .x = last.x,
                     .y = last.y + 1,
@@ -117,7 +119,7 @@ const Line = struct {
 
     pub fn iter(line: Line) Iterator {
         return Iterator{
-            .current = null,
+            .last = null,
             .line = line,
         };
     }
