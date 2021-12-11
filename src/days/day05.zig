@@ -93,7 +93,7 @@ const Line = struct {
 
             var peeked: Point = last;
 
-            // diagonal
+            // diagonal means we need to alter the x and y
             if (!it.line.isNotDiagonal()) {
                 if (last.x < it.line.end.x) {
                     peeked.x += 1;
@@ -109,6 +109,8 @@ const Line = struct {
 
                 return peeked;
             }
+
+            // non-diagonal means we need to alter the either x or y
 
             // go right
             if (last.x < it.line.end.x) {
