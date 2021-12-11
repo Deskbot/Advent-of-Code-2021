@@ -31,6 +31,7 @@ pub fn day05() anyerror!void {
     _ = try stdout.write("Day 05\n");
 
     _ = try stdout.print("Part 1 {}\n", .{try part1(input, &gpa.allocator)});
+    _ = try stdout.print("Part 2 {}\n", .{try part2(input, &gpa.allocator)});
 }
 
 fn Floor(comptime xSize: usize, comptime ySize: usize) type {
@@ -59,7 +60,7 @@ const Line = struct {
     start: Point,
     end: Point,
 
-    fn isNotDiagonal(line: *Line) bool {
+    fn isNotDiagonal(line: *const Line) bool {
         return line.start.x == line.end.x or line.start.y == line.end.y;
     }
 
@@ -80,42 +81,61 @@ const Line = struct {
                 return it.line.start;
             }
 
-            // continue from the current point
+            // we know this isn't null now
             const last = it.last.?;
+
+            // if we've already reached the end we're done
+            if (Point.equals(&last, &it.line.end)) {
+                return null;
+            }
+
+            // continue from the current point
+
+            var peeked: Point = last;
+
+            // diagonal
+            if (!it.line.isNotDiagonal()) {
+                if (last.x < it.line.end.x) {
+                    peeked.x += 1;
+                } else if (last.x > it.line.end.x) {
+                    peeked.x -= 1;
+                }
+
+                if (last.y < it.line.end.y) {
+                    peeked.y += 1;
+                } else if (last.y > it.line.end.y) {
+                    peeked.y -= 1;
+                }
+
+                return peeked;
+            }
 
             // go right
             if (last.x < it.line.end.x) {
-                return Point{
-                    .x = last.x + 1,
-                    .y = last.y,
-                };
+                peeked.x += 1;
             }
 
             // go left
-            if (last.x > it.line.end.x) {
-                return Point{
-                    .x = last.x - 1,
-                    .y = last.y,
-                };
+            else if (last.x > it.line.end.x) {
+                peeked.x -= 1;
             }
 
             // go down
-            if (last.y < it.line.end.y) {
-                return Point{
-                    .x = last.x,
-                    .y = last.y + 1,
-                };
+            else if (last.y < it.line.end.y) {
+                peeked.y += 1;
             }
 
             // go up
-            if (last.y > it.line.end.y) {
-                return Point{
-                    .x = last.x,
-                    .y = last.y - 1,
-                };
+            else if (last.y > it.line.end.y) {
+                peeked.y -= 1;
             }
 
-            return null;
+            // already at the end, can't move the last point at all
+            else {
+                return null;
+            }
+
+            return peeked;
         }
     };
 
@@ -130,6 +150,10 @@ const Line = struct {
 const Point = struct {
     x: i64,
     y: i64,
+
+    pub fn equals(p1: *const Point, p2: *const Point) bool {
+        return p1.x == p2.x and p1.y == p2.y;
+    }
 };
 
 fn parseInput(input: []const u8, allocator: *Allocator) !ArrayList(Line) {
@@ -174,6 +198,26 @@ fn part1(input: []Line, allocator: *Allocator) !i64 {
         if (line.isNotDiagonal()) {
             floor.draw(line);
         }
+    }
+
+    var numberOfOverlaps: i64 = 0;
+
+    for (floor.grid) |line| {
+        for (line) |cell| {
+            if (cell >= 2) {
+                numberOfOverlaps += 1;
+            }
+        }
+    }
+
+    return numberOfOverlaps;
+}
+
+fn part2(input: []Line, allocator: *Allocator) !i64 {
+    var floor = Floor(1000, 1000).new();
+
+    for (input) |*line| {
+        floor.draw(line);
     }
 
     var numberOfOverlaps: i64 = 0;
