@@ -42,11 +42,7 @@ fn part1(input: []const i64, allocator: *Allocator) !i64 {
     var school = School.new(fish, allocator);
     defer school.deinit();
 
-    var days: i64 = 0;
-    while (days < 80) {
-        try school.passOneDay();
-        days += 1;
-    }
+    try school.passDays(80);
 
     return @intCast(i64, school.size());
 }
@@ -62,11 +58,7 @@ fn part2(input: []const i64, allocator: *Allocator) !i64 {
     var school = School.new(fish, allocator);
     defer school.deinit();
 
-    var days: i64 = 0;
-    while (days < 256) {
-        try school.passOneDay();
-        days += 1;
-    }
+    try school.passDays(256);
 
     return @intCast(i64, school.size());
 }
@@ -124,41 +116,51 @@ const School = struct {
         try school.fish.appendSlice(newFishArr.items);
     }
 
-    // pub fn passSevenDays(school: *@This()) !void {
-    //     // create a list of new fish and append them when the list is complete
-    //     // don't add to the list while iterating through it
-    //     var newFishArr = ArrayList(LanternFish).init(school.allocator);
-    //     defer newFishArr.deinit();
+    pub fn passSevenDays(school: *@This()) !void {
+        // create a list of new fish and append them when the list is complete
+        // don't add to the list while iterating through it
+        var newFishArr = ArrayList(LanternFish).init(school.allocator);
+        defer newFishArr.deinit();
 
-    //     for (school.fish.items) |*fish| {
-    //         try newFishArr.append(LanternFish.new(fish.timer + 2));
-    //     }
+        for (school.fish.items) |*fish| {
+            // only fish with a timer of 6 or less will actually have a child in the next week
+            if (fish.timer <= 6) {
+                try newFishArr.append(LanternFish.new(fish.timer + 2));
+            }
 
-    //     try school.fish.appendSlice(newFishArr.items);
-    // }
+            // fish that won't loop back round to having the same timer will have had their timer reduced 7 times
+            else {
+                fish.timer -= 7;
+            }
+        }
 
-    // pub fn passDays(school: *@This(), daysToPass: i64) !void {
-    //     const weeks = @divFloor(daysToPass, 7);
-    //     const days = @rem(daysToPass, 7);
+        try school.fish.appendSlice(newFishArr.items);
+    }
 
-    //     var weeksDone: i64 = 0;
-    //     while (weeksDone < weeks) {
-    //         try school.passSevenDays();
-    //         weeksDone += 1;
-    //     }
+    pub fn passDays(school: *@This(), daysToPass: i64) !void {
+        const weeks = @divFloor(daysToPass, 7);
+        const days = @rem(daysToPass, 7);
 
-    //     var daysDone: i64 = 0;
-    //     while (daysDone < days) {
-    //         try school.passOneDay();
-    //         daysDone += 1;
-    //     }
-    // }
+        _ = try stdout.print("weeks ", .{});
+
+        var weeksDone: i64 = 0;
+        while (weeksDone < weeks) {
+            try school.passSevenDays();
+            weeksDone += 1;
+            _ = try stdout.print("{} ", .{weeksDone});
+        }
+
+        _ = try stdout.print("days ", .{});
+
+        var daysDone: i64 = 0;
+        while (daysDone < days) {
+            try school.passOneDay();
+            daysDone += 1;
+            _ = try stdout.print("{} ", .{daysDone});
+        }
+    }
 
     pub fn size(school: @This()) usize {
         return school.fish.items.len;
     }
 };
-
-// too big 4915200
-// too big  614556
-// too big  614440
