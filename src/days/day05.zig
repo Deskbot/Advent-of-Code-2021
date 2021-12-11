@@ -33,25 +33,27 @@ pub fn day05() anyerror!void {
     _ = try stdout.print("Part 1 {}\n", .{try part1(input, &gpa.allocator)});
 }
 
-const Floor = struct {
-    grid: [][]i64,
+fn Floor(comptime xSize: usize, comptime ySize: usize) type {
+    return struct {
+        grid: [xSize][ySize]i64,
 
-    pub fn new() @This() { // allocator: *Allocator
-        return @This(){
-            .grid = mem.zeroes([][]i64),
-        };
-    }
-
-    pub fn draw(floor: *@This(), line: *Line) void {
-        var it: Line.Iterator = line.iter();
-
-        while (it.next()) |point| {
-            const x = @intCast(usize, point.x);
-            const y = @intCast(usize, point.y);
-            floor.grid[x][y] += 1;
+        pub fn new() @This() {
+            return @This(){
+                .grid = mem.zeroes([xSize][ySize]i64),
+            };
         }
-    }
-};
+
+        pub fn draw(floor: *@This(), line: *Line) void {
+            var it: Line.Iterator = line.iter();
+
+            while (it.next()) |point| {
+                const x = @intCast(usize, point.x);
+                const y = @intCast(usize, point.y);
+                floor.grid[x][y] += 1;
+            }
+        }
+    };
+}
 
 const Line = struct {
     start: Point,
@@ -97,19 +99,19 @@ const Line = struct {
                 };
             }
 
-            // go up
+            // go down
             if (last.y < it.line.end.y) {
                 return Point{
                     .x = last.x,
-                    .y = last.y - 1,
+                    .y = last.y + 1,
                 };
             }
 
-            // go down
+            // go up
             if (last.y > it.line.end.y) {
                 return Point{
                     .x = last.x,
-                    .y = last.y + 1,
+                    .y = last.y - 1,
                 };
             }
 
@@ -166,7 +168,7 @@ fn parseLine(line: []const u8) Line {
 }
 
 fn part1(input: []Line, allocator: *Allocator) !i64 {
-    var floor = Floor.new();
+    var floor = Floor(1000, 1000).new();
 
     for (input) |*line| {
         if (line.isNotDiagonal()) {
