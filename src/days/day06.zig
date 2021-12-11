@@ -28,12 +28,12 @@ pub fn day06() !void {
     _ = try stdout.write("Day 06\n");
 
     _ = try stdout.print("Part 1 {}\n", .{try part1(&myIput, &gpa.allocator)});
-    // _ = try stdout.print("Part 2 {}\n", .{try part2(input, &gpa.allocator)});
+    _ = try stdout.print("Part 2 {}\n", .{try part2(&myIput, &gpa.allocator)});
 }
 
 fn part1(input: []const i64, allocator: *Allocator) !i64 {
     var fish = try ArrayList(LanternFish).initCapacity(allocator, input.len);
-    // defer fish.deinit();
+    // give the ownership of this to school
 
     for (input) |num| {
         try fish.append(LanternFish.new(num));
@@ -44,6 +44,26 @@ fn part1(input: []const i64, allocator: *Allocator) !i64 {
 
     var days: i64 = 0;
     while (days < 80) {
+        try school.passOneDay();
+        days += 1;
+    }
+
+    return @intCast(i64, school.size());
+}
+
+fn part2(input: []const i64, allocator: *Allocator) !i64 {
+    var fish = try ArrayList(LanternFish).initCapacity(allocator, input.len);
+    // give the ownership of this to school
+
+    for (input) |num| {
+        try fish.append(LanternFish.new(num));
+    }
+
+    var school = School.new(fish, allocator);
+    defer school.deinit();
+
+    var days: i64 = 0;
+    while (days < 256) {
         try school.passOneDay();
         days += 1;
     }
