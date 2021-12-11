@@ -42,7 +42,11 @@ fn part1(input: []const i64, allocator: *Allocator) !i64 {
     var school = School.new(fish, allocator);
     defer school.deinit();
 
-    try school.passDays(80);
+    var days: i64 = 0;
+    while (days < 80) {
+        try school.passOneDay();
+        days += 1;
+    }
 
     return @intCast(i64, school.size());
 }
@@ -100,35 +104,35 @@ const School = struct {
         try school.fish.appendSlice(newFishArr.items);
     }
 
-    pub fn passSevenDays(school: *@This()) !void {
-        // create a list of new fish and append them when the list is complete
-        // don't add to the list while iterating through it
-        var newFishArr = ArrayList(LanternFish).init(school.allocator);
-        defer newFishArr.deinit();
+    // pub fn passSevenDays(school: *@This()) !void {
+    //     // create a list of new fish and append them when the list is complete
+    //     // don't add to the list while iterating through it
+    //     var newFishArr = ArrayList(LanternFish).init(school.allocator);
+    //     defer newFishArr.deinit();
 
-        for (school.fish.items) |*fish| {
-            try newFishArr.append(LanternFish.new(fish.timer + 2));
-        }
+    //     for (school.fish.items) |*fish| {
+    //         try newFishArr.append(LanternFish.new(fish.timer + 2));
+    //     }
 
-        try school.fish.appendSlice(newFishArr.items);
-    }
+    //     try school.fish.appendSlice(newFishArr.items);
+    // }
 
-    pub fn passDays(school: *@This(), daysToPass: i64) !void {
-        const weeks = @divFloor(daysToPass, 7);
-        const days = @rem(daysToPass, 7);
+    // pub fn passDays(school: *@This(), daysToPass: i64) !void {
+    //     const weeks = @divFloor(daysToPass, 7);
+    //     const days = @rem(daysToPass, 7);
 
-        var weeksDone: i64 = 0;
-        while (weeksDone < weeks) {
-            try school.passSevenDays();
-            weeksDone += 1;
-        }
+    //     var weeksDone: i64 = 0;
+    //     while (weeksDone < weeks) {
+    //         try school.passSevenDays();
+    //         weeksDone += 1;
+    //     }
 
-        var daysDone: i64 = 0;
-        while (daysDone < days) {
-            try school.passOneDay();
-            daysDone += 1;
-        }
-    }
+    //     var daysDone: i64 = 0;
+    //     while (daysDone < days) {
+    //         try school.passOneDay();
+    //         daysDone += 1;
+    //     }
+    // }
 
     pub fn size(school: @This()) usize {
         return school.fish.items.len;
