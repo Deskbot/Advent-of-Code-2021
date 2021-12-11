@@ -176,5 +176,15 @@ fn part1(input: []Line, allocator: *Allocator) !i64 {
         }
     }
 
-    return 0;
+    var numberOfOverlaps: i64 = 0;
+
+    for (floor.grid) |line| {
+        for (line) |cell| {
+            if (cell >= 2) {
+                numberOfOverlaps += 1;
+            }
+        }
+    }
+
+    return numberOfOverlaps;
 }
