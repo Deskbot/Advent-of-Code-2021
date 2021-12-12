@@ -29,7 +29,7 @@ pub fn day06() !void {
     _ = try stdout.write("Day 06\n");
 
     _ = try stdout.print("Part 1 {}\n", .{try part1(&myInput, &gpa.allocator)});
-    _ = try stdout.print("Part 2 {}\n", .{try part2(&myInput, &gpa.allocator)});
+    _ = try stdout.print("Part 2 {}\n", .{try part2(&myInput, 256, &gpa.allocator)});
 }
 
 fn part1(input: []const i64, allocator: *Allocator) !i64 {
@@ -48,7 +48,7 @@ fn part1(input: []const i64, allocator: *Allocator) !i64 {
     return @intCast(i64, school.size());
 }
 
-fn part2(input: []const i64, allocator: *Allocator) !i64 {
+fn part2(input: []const i64, days: i64, allocator: *Allocator) !i64 {
     var fish = try ArrayList(LanternFish).initCapacity(allocator, input.len);
     defer fish.deinit();
 
@@ -58,7 +58,7 @@ fn part2(input: []const i64, allocator: *Allocator) !i64 {
 
     var school = School2.new(fish);
 
-    try school.passDays(256);
+    school.passDays(days);
 
     return @intCast(i64, school.size());
 }
@@ -175,7 +175,7 @@ const School2 = struct {
         school.fishMap[3] = school.fishMap[4];
         school.fishMap[4] = school.fishMap[5];
         school.fishMap[5] = school.fishMap[6];
-        school.fishMap[6] = school.fishMap[7] + school.fishMap[0]; // every fish at 0 becomes at 6
+        school.fishMap[6] = school.fishMap[7] + fishToGiveBirth; // every fish at 0 becomes at 6
         school.fishMap[7] = school.fishMap[8];
 
         // every fish at 0 creates a fish at 8
@@ -216,26 +216,28 @@ const School2 = struct {
 const expect = std.testing.expect;
 
 test "part 1 works with part 2 solution" {
-    const input = myInput;
-
     var gpa = GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
 
-    var fish = try ArrayList(LanternFish).initCapacity(&gpa.allocator, input.len);
-    defer fish.deinit();
+    const input = myInput;
 
-    for (input) |num| {
-        try fish.append(LanternFish.new(num));
-    }
-
-    var school = School2.new(fish);
-
-    school.passDays(80);
-
-    const actual = @intCast(i64, school.size());
+    const actual = try part2(&input, 80, &gpa.allocator);
     const expected = 356190;
 
-    _ = try stdout.print("actual {} \n", .{actual});
+    _ = try stdout.print("\n\nexpected {} actual {} \n\n", .{ expected, actual });
+    try expect(expected == actual);
+}
+
+test "part 2 example" {
+    var gpa = GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+
+    const input = [_]i64{ 3, 4, 3, 1, 2 };
+
+    const actual = try part2(&input, 256, &gpa.allocator);
+    const expected = 26984457539;
+
+    _ = try stdout.print("\n\nexpected {} actual {} \n\n", .{ expected, actual });
     try expect(expected == actual);
 }
 
