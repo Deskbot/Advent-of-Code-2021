@@ -20,16 +20,16 @@ const arr = @import("../utils/arr.zig");
 
 const stdout = std.io.getStdOut().writer();
 
+const myInput = [_]i64{ 1, 2, 5, 1, 1, 4, 1, 5, 5, 5, 3, 4, 1, 2, 2, 5, 3, 5, 1, 3, 4, 1, 5, 2, 5, 1, 4, 1, 2, 2, 1, 5, 1, 1, 1, 2, 4, 3, 4, 2, 2, 4, 5, 4, 1, 2, 3, 5, 3, 4, 1, 1, 2, 2, 1, 3, 3, 2, 3, 2, 1, 2, 2, 3, 1, 1, 2, 5, 1, 2, 1, 1, 3, 1, 1, 5, 5, 4, 1, 1, 5, 1, 4, 3, 5, 1, 3, 3, 1, 1, 5, 2, 1, 2, 4, 4, 5, 5, 4, 4, 5, 4, 3, 5, 5, 1, 3, 5, 2, 4, 1, 1, 2, 2, 2, 4, 1, 2, 1, 5, 1, 3, 1, 1, 1, 2, 1, 2, 2, 1, 3, 3, 5, 3, 4, 2, 1, 5, 2, 1, 4, 1, 1, 5, 1, 1, 5, 4, 4, 1, 4, 2, 3, 5, 2, 5, 5, 2, 2, 4, 4, 1, 1, 1, 4, 4, 1, 3, 5, 4, 2, 5, 5, 4, 4, 2, 2, 3, 2, 1, 3, 4, 1, 5, 1, 4, 5, 2, 4, 5, 1, 3, 4, 1, 4, 3, 3, 1, 1, 3, 2, 1, 5, 5, 3, 1, 1, 2, 4, 5, 3, 1, 1, 1, 2, 5, 2, 4, 5, 1, 3, 2, 4, 5, 5, 1, 2, 3, 4, 4, 1, 4, 1, 1, 3, 3, 5, 1, 2, 5, 1, 2, 5, 4, 1, 1, 3, 2, 1, 1, 1, 3, 5, 1, 3, 2, 4, 3, 5, 4, 1, 1, 5, 3, 4, 2, 3, 1, 1, 4, 2, 1, 2, 2, 1, 1, 4, 3, 1, 1, 3, 5, 2, 1, 3, 2, 1, 1, 1, 2, 1, 1, 5, 1, 1, 2, 5, 1, 1, 4 };
+
 pub fn day06() !void {
     var gpa = GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
 
-    const myIput = [_]i64{ 1, 2, 5, 1, 1, 4, 1, 5, 5, 5, 3, 4, 1, 2, 2, 5, 3, 5, 1, 3, 4, 1, 5, 2, 5, 1, 4, 1, 2, 2, 1, 5, 1, 1, 1, 2, 4, 3, 4, 2, 2, 4, 5, 4, 1, 2, 3, 5, 3, 4, 1, 1, 2, 2, 1, 3, 3, 2, 3, 2, 1, 2, 2, 3, 1, 1, 2, 5, 1, 2, 1, 1, 3, 1, 1, 5, 5, 4, 1, 1, 5, 1, 4, 3, 5, 1, 3, 3, 1, 1, 5, 2, 1, 2, 4, 4, 5, 5, 4, 4, 5, 4, 3, 5, 5, 1, 3, 5, 2, 4, 1, 1, 2, 2, 2, 4, 1, 2, 1, 5, 1, 3, 1, 1, 1, 2, 1, 2, 2, 1, 3, 3, 5, 3, 4, 2, 1, 5, 2, 1, 4, 1, 1, 5, 1, 1, 5, 4, 4, 1, 4, 2, 3, 5, 2, 5, 5, 2, 2, 4, 4, 1, 1, 1, 4, 4, 1, 3, 5, 4, 2, 5, 5, 4, 4, 2, 2, 3, 2, 1, 3, 4, 1, 5, 1, 4, 5, 2, 4, 5, 1, 3, 4, 1, 4, 3, 3, 1, 1, 3, 2, 1, 5, 5, 3, 1, 1, 2, 4, 5, 3, 1, 1, 1, 2, 5, 2, 4, 5, 1, 3, 2, 4, 5, 5, 1, 2, 3, 4, 4, 1, 4, 1, 1, 3, 3, 5, 1, 2, 5, 1, 2, 5, 4, 1, 1, 3, 2, 1, 1, 1, 3, 5, 1, 3, 2, 4, 3, 5, 4, 1, 1, 5, 3, 4, 2, 3, 1, 1, 4, 2, 1, 2, 2, 1, 1, 4, 3, 1, 1, 3, 5, 2, 1, 3, 2, 1, 1, 1, 2, 1, 1, 5, 1, 1, 2, 5, 1, 1, 4 };
-
     _ = try stdout.write("Day 06\n");
 
-    _ = try stdout.print("Part 1 {}\n", .{try part1(&myIput, &gpa.allocator)});
-    _ = try stdout.print("Part 2 {}\n", .{try part2(&myIput, &gpa.allocator)});
+    _ = try stdout.print("Part 1 {}\n", .{try part1(&myInput, &gpa.allocator)});
+    _ = try stdout.print("Part 2 {}\n", .{try part2(&myInput, &gpa.allocator)});
 }
 
 fn part1(input: []const i64, allocator: *Allocator) !i64 {
@@ -149,31 +149,26 @@ const School2 = struct {
         };
     }
 
-    pub fn passDays(school: *@This(), daysToPass: i64) !void {
+    pub fn passDays(school: *@This(), daysToPass: i64) void {
         const weeks = @divFloor(daysToPass, 7);
         const days = @rem(daysToPass, 7);
 
         var weeksDone: i64 = 0;
         while (weeksDone < weeks) {
             school.passWeek();
-
-            _ = try stdout.print("size {any} \n", .{school.size()});
-
             weeksDone += 1;
-            // _ = try stdout.print("{} ", .{weeksDone});
         }
-
-        // _ = try stdout.print("days ", .{});
 
         var daysDone: i64 = 0;
         while (daysDone < days) {
             school.passOneDay();
             daysDone += 1;
-            // _ = try stdout.print("{} ", .{daysDone});
         }
     }
 
     pub fn passOneDay(school: *@This()) void {
+        const fishToGiveBirth = school.fishMap[0];
+
         school.fishMap[0] = school.fishMap[1];
         school.fishMap[1] = school.fishMap[2];
         school.fishMap[2] = school.fishMap[3];
@@ -184,26 +179,27 @@ const School2 = struct {
         school.fishMap[7] = school.fishMap[8];
 
         // every fish at 0 creates a fish at 8
-        school.fishMap[8] = school.fishMap[0];
+        school.fishMap[8] = fishToGiveBirth;
     }
 
     pub fn passWeek(school: *@This()) void {
+        const eights = school.fishMap[8];
+        const sevens = school.fishMap[7];
 
         // fish with a timer of n, produce a fish with timer n+2
-        school.fishMap[2] += school.fishMap[0];
-        school.fishMap[3] += school.fishMap[1];
-        school.fishMap[4] += school.fishMap[2];
-        school.fishMap[5] += school.fishMap[3];
+        school.fishMap[8] += school.fishMap[6];
+        school.fishMap[7] += school.fishMap[5];
         school.fishMap[6] += school.fishMap[4];
+        school.fishMap[5] += school.fishMap[3];
+        school.fishMap[4] += school.fishMap[2];
+        school.fishMap[3] += school.fishMap[1];
+        school.fishMap[2] += school.fishMap[0];
 
         // unless the fish's timer is 7 or 8
         // in which case their timer goes down by 7
 
-        school.fishMap[0] += school.fishMap[7];
-        school.fishMap[1] += school.fishMap[8];
-
-        school.fishMap[7] = school.fishMap[5];
-        school.fishMap[8] = school.fishMap[6];
+        school.fishMap[1] += eights;
+        school.fishMap[0] += sevens;
     }
 
     pub fn size(school: @This()) i64 {
@@ -217,4 +213,31 @@ const School2 = struct {
     }
 };
 
+const expect = std.testing.expect;
+
+test "part 1 works with part 2 solution" {
+    const input = myInput;
+
+    var gpa = GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+
+    var fish = try ArrayList(LanternFish).initCapacity(&gpa.allocator, input.len);
+    defer fish.deinit();
+
+    for (input) |num| {
+        try fish.append(LanternFish.new(num));
+    }
+
+    var school = School2.new(fish);
+
+    school.passDays(80);
+
+    const actual = @intCast(i64, school.size());
+    const expected = 356190;
+
+    _ = try stdout.print("actual {} \n", .{actual});
+    try expect(expected == actual);
+}
+
 // too high 72141502659417871
+// too high 71513736741905388
