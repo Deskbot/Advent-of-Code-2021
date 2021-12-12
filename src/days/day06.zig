@@ -119,13 +119,10 @@ const School = struct {
     pub fn passDays(school: *@This(), daysToPass: i64) !void {
         const days = daysToPass;
 
-        _ = try stdout.print("days ", .{});
-
         var daysDone: i64 = 0;
         while (daysDone < days) {
             try school.passOneDay();
             daysDone += 1;
-            _ = try stdout.print("day {} count {} \n", .{ daysDone, school.size() });
         }
     }
 
@@ -187,8 +184,8 @@ const School2 = struct {
         const sevens = school.fishMap[7];
 
         // fish with a timer of n, produce a fish with timer n+2
-        school.fishMap[8] += school.fishMap[6];
-        school.fishMap[7] += school.fishMap[5];
+        school.fishMap[8] = school.fishMap[6];
+        school.fishMap[7] = school.fishMap[5];
         school.fishMap[6] += school.fishMap[4];
         school.fishMap[5] += school.fishMap[3];
         school.fishMap[4] += school.fishMap[2];
@@ -240,6 +237,3 @@ test "part 2 example" {
     _ = try stdout.print("\n\nexpected {} actual {} \n\n", .{ expected, actual });
     try expect(expected == actual);
 }
-
-// too high 72141502659417871
-// too high 71513736741905388
