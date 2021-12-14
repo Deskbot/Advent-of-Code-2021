@@ -5,6 +5,7 @@ const day04 = @import("./days/day04.zig").day04;
 const day05 = @import("./days/day05.zig").day05;
 const day06 = @import("./days/day06.zig").day06;
 const day07 = @import("./days/day07.zig").day07;
+const day08 = @import("./days/day08.zig").day08;
 
 pub fn main() anyerror!void {
     try day01();
@@ -14,4 +15,5 @@ pub fn main() anyerror!void {
     try day05();
     try day06();
     try day07();
+    try day08();
 }
