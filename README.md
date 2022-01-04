@@ -19,6 +19,12 @@ zig test src/main.zig --main-pkg-path src
 
 (Day 4)
 
+## Install
+
+1. Checkout the V repo.
+2. Compile
+3. Copy the repo folder into `./v`
+
 ## Run
 
 ```
